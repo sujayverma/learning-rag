@@ -1,0 +1,9 @@
+uvicorn
+langchain
+langgraph
+python-dotenv
+langchain-core
+langchain-openai
+langchain-anthropic
+langchain_community
+chromadb
