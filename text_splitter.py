@@ -89,7 +89,7 @@ def binary_search(arr, target):
 def recursive_splitters():
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=500, 
-        chunk_overlap=50,
+        chunk_overlap=100,
         separators=["\n\n", "\n", " ", ""]
     )
 
@@ -98,15 +98,30 @@ def recursive_splitters():
     print(f"Original Length: {len(SAMPLE_TEXT)} characters")
     print(f"Number of Chunks: {len(chunks)}")
     print(f"Chunk Sizes: {[len(chunk) for chunk in chunks]}")
-    print(f"First Chunks preview:\n{chunks[1]}...\n")
+    print(f"First Chunks preview:\n{chunks[0]}...\n")
+    print(f"Second Chunks preview:\n{chunks[1]}...\n")
+    print(f"Third Chunks preview:\n{chunks[2]}...\n")
 
+def chunk_size_comparision():
+    sizes = [200, 500, 1000]
 
+    print("=== Chunk Size Comparison ===")
+    for size in sizes:
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=size,
+            chunk_overlap=size // 5,  # 20% overlap
+        )
+        chucks = splitter.split_text(SAMPLE_TEXT)
+        print(f"Chunk Size: {size}, Number of Chunks: {len(chucks)}")
+        print(f"First Chunk Preview ({len(chucks[0])} chars): {chucks[0]}...\n")
+        if len(chucks) > 1:
+            print(f"Second Chunk Preview ({len(chucks[1])} chars): {chucks[1]}...\n")
 
 def overlap_importance():
     text = "The quick brown fox jumps over the lazy dog. " * 10  # Repeated text
 
     # without overlap
-    no_overlap = RecursiveCharacterTextSplitter(chunk_size=50, chunk_overlap=0)
+    no_overlap = RecursiveCharacterTextSplitter(chunk_size=50, chunk_overlap=10)
 
     # with overlap
     with_overlap = RecursiveCharacterTextSplitter(chunk_size=50, chunk_overlap=20)
@@ -122,7 +137,67 @@ def overlap_importance():
     print(f"  Chunk 1 end: ...{chunks_with_overlap[0][-20:]}")
     print(f"  Chunk 2 start: {chunks_with_overlap[1][:20]}...")
 
+def mark_down_splitter():
+    headers_to_consider = [
+        ('#', "h1"),
+        ('##', "h2"),
+        ('###', "h3"),
+    ]
+
+    splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_consider)
+    chunks = splitter.split_text(SAMPLE_TEXT)
+
+    print(f"Markdown Splitter - Number of Chunks: {len(chunks)}")
+    for i, chunk in enumerate(chunks):
+        print(f"--- Chunk {i} ---")
+        print(f" Metadata: {chunk.metadata}\n")
+        print(f" Content: {chunk.page_content[:200]}...\n")
+
+def code_splitter():
+    splitter = RecursiveCharacterTextSplitter.from_language(
+            language=Language.PYTHON,
+            chunk_size=500,
+            chunk_overlap=100
+        )
+    chunks = splitter.split_text(SAMPLE_CODE)
+    print(f"Code Splitter - Number of Chunks: {len(chunks)}")
+    for i, chunk in enumerate(chunks):
+        print(f"\nChunk {i} ({len(chunk)} chars):")
+        print(chunk+ "..." )
+
+def document_splitter():
+    from langchain_core.documents import Document
+    from langchain_community.document_loaders import PyPDFLoader
+
+    loader = PyPDFLoader('./docs/langchain_demo.pdf')
+    documents = loader.load()
+
+    # splitter = RecursiveCharacterTextSplitter(
+    #     chunk_size=500,
+    #     chunk_overlap=50
+    # )
+
+    splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=100,
+            separators=["\n\n", "\n", " ", ""]
+        )
+
+    chunks = splitter.split_documents(documents)
+    print(f"Split into {len(chunks)} chunks")
+    print(f"\nFirst chunk metadata: {chunks[0].metadata}")
+    print(f"First Chunk Length: {len(chunks[0].page_content)} characters")
+    print(f"First chunk content: {chunks[0].page_content}...")
+    print(f"Second Chunk Length: {len(chunks[1].page_content)} characters")
+    print(f"Second chunk content: {chunks[1].page_content}...")
+    print(f"Third Chunk Length: {len(chunks[2].page_content)} characters")
+    print(f"Third chunk content: {chunks[2].page_content}...")
+    print(f"\nLast chunk metadata: {chunks[-1].metadata}")
 
 if __name__ == "__main__":
     # recursive_splitters()
-    overlap_importance()
+    # chunk_size_comparision()
+    # overlap_importance()
+    # mark_down_splitter()
+    # code_splitter()
+    document_splitter()
