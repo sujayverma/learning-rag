@@ -177,6 +177,7 @@ def document_splitter():
     #     chunk_overlap=50
     # )
 
+    # 20% overlap is recommended for RAG applications to ensure context is preserved across chunks.
     splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=100,
