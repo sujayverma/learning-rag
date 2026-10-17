@@ -8,3 +8,5 @@ langchain-anthropic
 langchain_community
 chromadb
 rank_bm25
+langsmith
+langchain-experimental
