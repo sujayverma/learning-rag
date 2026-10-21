@@ -10,3 +10,4 @@ chromadb
 rank_bm25
 langsmith
 langchain-experimental
+langchain-classic
