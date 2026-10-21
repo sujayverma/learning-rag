@@ -92,3 +92,32 @@ semantic_chunker = SemanticChunker(
 semantic_chunks = semantic_chunker.split_text(document)
 
 print_chunks(semantic_chunks, "SemanticChunker")
+
+recursive_vector_store = Chroma.from_texts(recursive_chunks, embeddings, collection_name="recursive_chunks")
+semantic_vector_store = Chroma.from_texts(semantic_chunks, embeddings, collection_name="semantic_chunks")
+
+
+test_query = [
+    "How do I authenticate using OAuth2?",
+    "What are the rate limits for the free tier?",
+    "How should I handle errors returned by the API?",
+    "How can I set up webhooks and verify their signatures?"
+]
+
+
+def test_retrival(query, vector_store, name):
+    """Test retrieval from a vector store for a given query."""
+    results = vector_store.similarity_search_with_score(query, k=2)
+    print(f"\n{'='*60}")
+    print(f"  Retrieval Test: {name}")
+    print(f"  Query: {query}")
+    print(f"{'='*60}")
+    for i, (result, score) in enumerate(results):
+        final_score = 1 / (1 + score)
+        print(f"\n--- Result {i+1} ({len(result.page_content)} chars) (Score: {final_score: .4f}) ---")
+        print(result.page_content)
+
+
+for query in test_query:
+    test_retrival(query, recursive_vector_store, "RecursiveCharacterTextSplitter")
+    test_retrival(query, semantic_vector_store, "SemanticChunker")
