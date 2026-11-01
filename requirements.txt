@@ -11,3 +11,6 @@ rank_bm25
 langsmith
 langchain-experimental
 langchain-classic
+psycopg2-binary
+pgvector
+langchain_postgres
